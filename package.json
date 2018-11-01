@@ -1,0 +1,23 @@
+{
+  "name": "31.10.18",
+  "version": "1.0.0",
+  "description": "Escrow",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aleksandrovych/31.10.18.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/aleksandrovych/31.10.18/issues"
+  },
+  "homepage": "https://github.com/aleksandrovych/31.10.18#readme",
+  "dependencies": {
+    "dotenv": "^6.1.0",
+    "truffle-hdwallet-provider": "0.0.6"
+  }
+}

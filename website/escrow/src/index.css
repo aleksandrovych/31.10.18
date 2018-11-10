@@ -17,7 +17,7 @@ code {
 div #tab1 ,#tab2, #tab3 {
   display: block;
   position: relative;
-  height: 450px;
+  height: 550px;
 }
 
 input {

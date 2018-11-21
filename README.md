@@ -5,6 +5,7 @@ Escrow
 - - - - - - -
 Truffle v4.1.14
 Solidity: 0.4.25+commit.59dbf8f1.Emscripten.clang
+web3:  1.0.0-beta.36
 - - - - - - -
 
 Как проверить версию Solidity из трафл консоли:

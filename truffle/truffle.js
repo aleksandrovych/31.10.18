@@ -12,26 +12,26 @@ module.exports = {
     },
 
     ropsten: {
-      provider: () => new HDWalletProvider(process.env.MNENOMIC, "https://ropsten.infura.io/v3/" + process.env.INFURA_API_KEY, 0, 100),
+      provider: () => new HDWalletProvider(process.env.MNENOMIC, "https://ropsten.infura.io/v3/" + process.env.INFURA_API_KEY, 0, 10),
       network_id: 3,
       gas: 3000000,
       gasPrice: 21
     },
     kovan: {
-      provider: () => new HDWalletProvider(process.env.MNENOMIC, "https://kovan.infura.io/v3/" + process.env.INFURA_API_KEY, 0, 100),
+      provider: () => new HDWalletProvider(process.env.MNENOMIC, "https://kovan.infura.io/v3/" + process.env.INFURA_API_KEY, 0, 10),
       network_id: 42,
       gas: 3000000,
       gasPrice: 21
     },
     rinkeby: {
-      provider: () => new HDWalletProvider(process.env.MNENOMIC, "https://rinkeby.infura.io/v3/" + process.env.INFURA_API_KEY, 0, 100),
+      provider: () => new HDWalletProvider(process.env.MNENOMIC, "https://rinkeby.infura.io/v3/" + process.env.INFURA_API_KEY, 0, 10),
       network_id: 4,
       gas: 3000000,
-      gasPrice: 100
+      gasPrice: 21,
     },
     // main ethereum network(mainn
     main: {
-      provider: () => new HDWalletProvider(process.env.MNENOMIC, "https://mainnet.infura.io/v3/" + process.env.INFURA_API_KEY, 0, 100),
+      provider: () => new HDWalletProvider(process.env.MNENOMIC, "https://mainnet.infura.io/v3/" + process.env.INFURA_API_KEY, 0, 10),
       network_id: 1,
       gas: 3000000,
       gasPrice: 21

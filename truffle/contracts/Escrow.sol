@@ -14,13 +14,7 @@ constructor(address buyer_address, address seller_address) public {
         seller = seller_address;
         escrow = msg.sender;
         start = now;
-    }
-
-/*
-    function testReturn() public returns (string) {
-      return 'Return test info to console';
-    }
-*/
+  }
 
     function accept() public {
         if (msg.sender == buyer){

@@ -58,6 +58,7 @@ class App extends Component {
             buyerSend: false,
             buyer: '',
             seller: '',
+            deposit: 5,
         };
     }
 
@@ -157,11 +158,28 @@ class App extends Component {
             return
         };
 
-        const result = this.contract.methods.cancel().call({from: this.state.buyer}, (error, result) => console.log('toggleBuyerCancel: ', result));
+        this.coinbase((from) => {
+            if (this.state.buyer.trim().toLowerCase() == from.trim().toLowerCase()) {
+                const result = this.contract.methods.cancel().send({from: this.state.buyer, gas: 27870}, (error, result) => {
+                    if (error === null) {
+                        this.setState({
+                            buyerCancel: !this.state.buyerCancel
+                        });
+                        this.contract = null;
+                        this.source = null;
+                        return
+                    }
+                });
 
-        this.setState({
-            buyerCancel: !this.state.buyerCancel
-        });
+                return
+            }
+
+            ErrorAlert.error('Choose buyer account to do this', {
+                position: 'top-right',
+                effect: 'slide',
+                timeout: 'none'
+            });
+        }, [])
     }
 
     toggleSellerCancel = () => {
@@ -169,11 +187,27 @@ class App extends Component {
             return
         };
 
-        const result = this.contract.methods.cancel().call({from: this.state.seller}, (error, result) => console.log('toggleSellerCancel: ', result));
+        this.coinbase((from) => {
+            if (this.state.seller.trim().toLowerCase() == from.trim().toLowerCase()) {
+                const result = this.contract.methods.cancel().send({from: this.state.seller, gas: 27870}, (error, result) => {
+                    if (error === null) {
+                        this.setState({
+                            sellerCancel: !this.state.sellerCancel
+                        });
+                        this.contract = null;
+                        this.source = null;
+                        return
+                    }
+                });
+                return
+            }
 
-        this.setState({
-            sellerCancel: !this.state.sellerCancel
-        });
+            ErrorAlert.error('Choose seller account to do this', {
+                position: 'top-right',
+                effect: 'slide',
+                timeout: 'none'
+            });
+        }, [])
     }
 
     toggleBuyerApprove = () => {
@@ -181,43 +215,88 @@ class App extends Component {
             return
         };
 
-        console.log('this.contract: ', this.contract);
+        this.coinbase((from) => {
+            if (this.state.buyer.trim().toLowerCase() == from.trim().toLowerCase()) {
+                this.contract.methods.accept().send({from: this.state.buyer, gas: 50000}, (error, result) => {
+                    if (error === null) {
+                        this.setState({
+                            buyerApprove: !this.state.buyerApprove
+                        });
+                        return
+                    }
+                });
 
-        this.contract.methods.accept().send({from: this.state.buyer, gas: 50000}, (error, result) => {
-            console.log('result: ', result)
-        });
+                return
+            }
 
-        this.setState({
-            buyerApprove: !this.state.buyerApprove
-        });
+            ErrorAlert.error('Choose buyer account to do this', {
+                position: 'top-right',
+                effect: 'slide',
+                timeout: 'none'
+            });
+            }, [])
     }
 
     toggleSellerApprove = () => {
         if (this.showErrorIfShould()) {
-            console.log('error!!!!1');
             return
         };
 
-        console.log('this.contract: ', this.contract);
-        this.contract.methods.accept().send({from: this.state.seller, gas: 50000}, (error, result) => console.log('toggleSellerApprove: ', result, ' error: ', error));
+        this.coinbase((from) => {
+            if (this.state.seller.trim().toLowerCase() == from.trim().toLowerCase()) {
+                this.contract.methods.accept().send({from: this.state.seller, gas: 50000}, (error, result) => {
+                    if (error === null) {
+                        this.setState({
+                            sellerApprove: !this.state.sellerApprove
+                        });
+                        return
+                    }
+                });
+                return
+            }
 
-        this.setState({
-            sellerApprove: !this.state.sellerApprove
-        });
+            ErrorAlert.error('Choose seller account to do this', {
+                position: 'top-right',
+                effect: 'slide',
+                timeout: 'none'
+            });
+        }, [])
+
+
     }
 
+
     toggleBuyerSend = () => {
+
         if (this.showErrorIfShould()) {
-            console.log('error!!!!2');
             return
         };
-        /* send 0.01 eth */
-        const buyer = this.state.buyer;
-        this.contract.methods.deposit().send({from: buyer, value: 12000000000000000}) //.then((err, res) => console.log("err:" , err, " res: ", res))
 
-        this.setState({
-            buyerSend: !this.state.buyerSend
-        });
+        this.coinbase((from) => {
+            if (this.state.buyer.trim().toLowerCase() == from.trim().toLowerCase()) {
+                this.contract.methods.deposit().send({from: this.state.buyer, value: (1000000000000000 * this.state.deposit)}, (error, result) => {
+                    if (error === null) {
+                        this.setState({
+                            buyerSend: !this.state.buyerSend
+                        });
+                        return
+                    }
+                });
+                return
+            }
+
+            ErrorAlert.error('Only buyer can make a deposit', {
+                position: 'top-right',
+                effect: 'slide',
+                timeout: 'none'
+            });
+
+
+        }, [])
+
+
+
+
     }
 
     updateSellerAddress = event => {
@@ -228,8 +307,12 @@ class App extends Component {
         this.setState({buyer: event.target.value});
     }
 
+    updateDeposit = event => {
+        this.setState({deposit: event.target.value});
+    }
+
     showErrorIfShould = () => {
-        if (this.source === null) {
+        if (this.source === null || this.contract === null) {
             ErrorAlert.error('No contract deployed', {
                 position: 'top-right',
                 effect: 'slide',
@@ -242,35 +325,34 @@ class App extends Component {
     }
 
     getWeb3 = () => ((window.web3.currentProvider != undefined && window.web3.currentProvider != null && window.web3.currentProvider != NaN) ? new Web3(window.web3.currentProvider) : new Web3());
-//
+
     getInputFileElement = () => document.getElementById('file-input');
     listenFileSelection = (element) => element.addEventListener('change', this.onFileSelect, false);
-    /*block start*/
+
     onFileSelect = (event) => (this.startEscrowContractFileReading(event));
     startEscrowContractFileReading = event => (this.readEscrowContracts(event))
-//
+
     readEscrowContracts = (event) => (this.readContracts('../../../build/contracts/Escrow.json', event))
     readContracts = (path, event, reader = new FileReader()) => (reader.onload = this.readFileCallback, reader.readAsText(event.target.files[0]));
-//
+
     readFileCallback = (event) => this.imperativ({
         proxy: this.createContractProxy(this.parseContractAttribute(event.target.result, 'abi')),
         bin: this.parseContractAttribute(event.target.result, 'bytecode')
     });
-//
+
     parseContractAttribute = (source, attribute) => JSON.parse(source)[attribute];
     createContractProxy = abi => (new this.web3.eth.Contract(abi));
-//
-    /*block end*/
+
+
     unlockBase = pass => this.coinbase(this.unlockAcc, pass)
-//
+
     coinbase = (fn, par) => (this.web3.eth.getCoinbase((err, res) => fn(res, ...par)))
     unlockAcc = (acc, pass) => this.web3.eth.personal.unlockAccount(acc, pass);
-//
+
     createContract = (Contract, from, gas, bin) => Contract.new({from: from, gas: gas, data: bin})
 
     imperativ = (source) => {
         this.source = source;
-        // all data
     }
 
     render() {
@@ -347,6 +429,10 @@ class App extends Component {
                                     <Jumbotron fluid className="mr-3 mb-3 pl-4 pr-4 pt-3 pb-1">
                                         <Alert color="success">
                                             Contract deploying will cost 683675 gas for you!
+                                            <InputGroup className="w-25 d-inline-block ml-5">
+                                                <Input id="inputField" className="input-width d-inline-block" value={this.state.deposit} onChange={this.updateDeposit} placeholder="Enter ammount" />
+                                                <InputGroupAddon className="d-inline-block" addonType="append">finney - default deposit</InputGroupAddon>
+                                            </InputGroup>
                                         </Alert>
                                     </Jumbotron>
                                 </Col>
@@ -359,14 +445,14 @@ class App extends Component {
                                 <Col sm="12">
                                     <Jumbotron fluid className="mr-2 pl-4 pr-4 pt-3 pb-4">
                                         <Alert color="success">
-                                            Seller recive your money only after your approve!
+                                            Seller receive your money only after your approve!
                                         </Alert>
                                         <Button onClick={this.toggleBuyerSend} className="w-25" color="primary">Send
                                             money</Button>
                                     </Jumbotron>
                                     <Jumbotron fluid className="mr-2 pl-4 pr-4 pt-3 pb-4">
                                         <Alert color="success">
-                                            Approve deal, if you recive product
+                                            Approve deal, if you receive product
                                         </Alert>
                                         <Button onClick={this.toggleBuyerApprove} className="w-25" color="primary">Approve
                                             deal</Button>

@@ -147,7 +147,18 @@ class App extends Component {
                 from: from,
             }).then(function (newContractInstance) {
                 strongSelf.contract =  newContractInstance;
-                console.log('newContractInstance: ',newContractInstance);
+
+                strongSelf.setState({
+                    modal: !strongSelf.state.modal
+                });
+
+
+            }).catch((error) => {
+                ErrorAlert.error(/*'Problems with deploying contract'*/ error, {
+                    position: 'top-right',
+                    effect: 'slide',
+                    timeout: 'none'
+                });
             });
         }, [])
     }
@@ -333,7 +344,7 @@ class App extends Component {
     startEscrowContractFileReading = event => (this.readEscrowContracts(event))
 
     readEscrowContracts = (event) => (this.readContracts('../../../build/contracts/Escrow.json', event))
-    readContracts = (path, event, reader = new FileReader()) => (reader.onload = this.readFileCallback, reader.readAsText(event.target.files[0]));
+    readContracts = (path, event, reader = new FileReader()) => (reader.onload = this.readFileCallback, (!!event.target.files[0] ? reader.readAsText(event.target.files[0]) : null));
 
     readFileCallback = (event) => this.imperativ({
         proxy: this.createContractProxy(this.parseContractAttribute(event.target.result, 'abi')),
